@@ -4,18 +4,51 @@ import simpleGit, { type SimpleGit } from 'simple-git'
 import { env } from '#/env.server'
 
 let git: SimpleGit | null = null
+let resolvedRepoPath: string | null = null
+
+function toRepoRelativePath(filePath: string, repoPath: string): string {
+  const normalized = path.normalize(filePath)
+
+  // Absolute path: strip repoPath prefix if present
+  if (path.isAbsolute(normalized)) {
+    return normalized.startsWith(repoPath + path.sep)
+      ? path.relative(repoPath, normalized)
+      : normalized
+  }
+
+  // Relative path via CWD resolution
+  const abs = path.resolve(normalized)
+  if (abs.startsWith(repoPath + path.sep)) {
+    return path.relative(repoPath, abs)
+  }
+
+  // Fallback: strip the relative form of repoPath as a string prefix using env directly
+  // e.g. DOCS_REPO_PATH='./data/docs-repo' → normalized 'data/docs-repo'
+  // filePath='data/docs-repo/foo.md' → 'foo.md'
+  const envRepoRel = path.normalize(env.DOCS_REPO_PATH)
+  const prefix = envRepoRel + path.sep
+  if (normalized.startsWith(prefix)) {
+    return normalized.slice(prefix.length)
+  }
+
+  return normalized
+}
 
 async function getGit(): Promise<SimpleGit> {
   if (git) return git
 
   const repoPath = path.resolve(env.DOCS_REPO_PATH)
+  resolvedRepoPath = repoPath
   await fs.mkdir(repoPath, { recursive: true })
 
   const g = simpleGit(repoPath)
 
+  // Check for .git directly in repoPath — do NOT use g.status() as it traverses
+  // up the directory tree and would find the parent project's git repo.
+  const gitDir = path.join(repoPath, '.git')
   let isRepo = false
   try {
-    await g.status()
+    await fs.access(gitDir)
     isRepo = true
   } catch {
     isRepo = false
@@ -25,6 +58,13 @@ async function getGit(): Promise<SimpleGit> {
     await g.init()
     await g.addConfig('user.name', 'App Documents')
     await g.addConfig('user.email', 'admin@app-documents.local')
+
+    // Seed any existing files on disk into the first commit
+    const status = await g.status()
+    if (status.not_added.length > 0) {
+      await g.add('.')
+      await g.commit('chore: seed existing documents')
+    }
   }
 
   git = g
@@ -36,8 +76,9 @@ export async function readDocumentAtVersion(
   version: string,
 ): Promise<string> {
   const g = await getGit()
+  const relPath = toRepoRelativePath(filePath, resolvedRepoPath!)
   const ref = version === 'main' ? 'HEAD' : version
-  return g.show([`${ref}:${filePath}`])
+  return g.show([`${ref}:${relPath}`])
 }
 
 export async function writeAndCommit(
@@ -46,13 +87,14 @@ export async function writeAndCommit(
   message: string,
 ): Promise<string> {
   const g = await getGit()
-  const repoPath = path.resolve(env.DOCS_REPO_PATH)
-  const fullPath = path.join(repoPath, filePath)
+  const repoPath = resolvedRepoPath!
+  const relPath = toRepoRelativePath(filePath, repoPath)
+  const fullPath = path.join(repoPath, relPath)
 
   await fs.mkdir(path.dirname(fullPath), { recursive: true })
   await fs.writeFile(fullPath, content, 'utf-8')
 
-  await g.add(filePath)
+  await g.add(relPath)
   const result = await g.commit(message)
   return result.commit
 }
@@ -72,7 +114,8 @@ export async function getDocumentHistory(
   const g = await getGit()
 
   try {
-    const log = await g.log({ file: filePath, maxCount: limit })
+    const relPath = toRepoRelativePath(filePath, resolvedRepoPath!)
+    const log = await g.log({ file: relPath, maxCount: limit })
     return log.all.map((entry) => ({
       commit: entry.hash,
       shortHash: entry.hash.slice(0, 7),
