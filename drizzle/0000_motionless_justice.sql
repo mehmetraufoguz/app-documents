@@ -23,7 +23,9 @@ CREATE TABLE `documents` (
 	`file_path` text NOT NULL,
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`created_by` text NOT NULL
+	`created_by` text NOT NULL,
+	`deleted_at` integer,
+	`last_commit_hash` text
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `documents_slug_unique` ON `documents` (`slug`);--> statement-breakpoint
@@ -59,5 +61,3 @@ CREATE TABLE `verification` (
 	`created_at` integer,
 	`updated_at` integer
 );
---> statement-breakpoint
-DROP TABLE `todos`;

@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=./data/profiles.db
+      - DOCS_REPO_PATH=./data/docs-repo
+      - BETTER_AUTH_SECRET=608c0753a01718832b4ae37bbf4c7e4f02444272e070536523037017db4138b5
+      - BETTER_AUTH_URL=http://localhost:3000
+      - NODE_ENV=production
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

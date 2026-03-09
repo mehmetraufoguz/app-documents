@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1772998156250,
-      "tag": "0000_melted_the_fury",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1772999721280,
-      "tag": "0001_supreme_daredevil",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1741478400000,
-      "tag": "0002_add_document_delete",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1773060282534,
-      "tag": "0003_spicy_plazm",
+      "when": 1773069527943,
+      "tag": "0000_motionless_justice",
       "breakpoints": true
     }
   ]
