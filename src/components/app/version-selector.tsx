@@ -36,15 +36,18 @@ export function VersionSelector({ versions, documentId }: VersionSelectorProps) 
 
   return (
     <Select value={currentVersion} onValueChange={handleChange}>
-      <SelectTrigger className="w-[200px]">
+      <SelectTrigger className="w-[180px] h-8 text-xs rounded-xl border-border/60 bg-background/80">
         <SelectValue placeholder="Select version" />
       </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="main">main (latest)</SelectItem>
+      <SelectContent className="rounded-xl">
+        <SelectItem value="main" className="text-xs">
+          <span className="font-medium">main</span>
+          <span className="ml-1.5 text-muted-foreground">(latest)</span>
+        </SelectItem>
         {versions.map((v) => (
-          <SelectItem key={v.commit} value={v.commit}>
-            <span className="font-mono text-xs">{v.shortHash}</span>
-            <span className="ml-2 text-muted-foreground truncate max-w-[120px]">
+          <SelectItem key={v.commit} value={v.commit} className="text-xs">
+            <span className="font-mono text-primary/80">{v.shortHash}</span>
+            <span className="ml-2 text-muted-foreground truncate max-w-[100px]">
               {v.message}
             </span>
           </SelectItem>

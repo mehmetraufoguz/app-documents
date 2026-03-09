@@ -27,13 +27,17 @@ function DocumentView() {
   const { html, version } = Route.useLoaderData()
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {version !== 'main' && (
-        <div className="text-xs text-muted-foreground bg-muted/50 border rounded-md px-3 py-2">
-          Viewing version: <code className="font-mono">{version.slice(0, 7)}</code>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 border border-border/60 px-3 py-1.5">
+          <span className="size-1.5 rounded-full bg-primary inline-block shrink-0" />
+          Viewing historical version:{' '}
+          <code className="font-mono text-foreground/80">{version.slice(0, 7)}</code>
         </div>
       )}
-      <MarkdownPreview html={html} />
+      <div className="bg-muted/25 border-l-2 border-primary/30 px-6 py-6">
+        <MarkdownPreview html={html} />
+      </div>
     </div>
   )
 }

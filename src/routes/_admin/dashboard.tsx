@@ -18,15 +18,16 @@ function Dashboard() {
   const { docs } = Route.useLoaderData()
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Documents</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+    <div className="space-y-5">
+      {/* Page header */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-0.5">
+          <h1 className="text-xl font-bold tracking-tight">Documents</h1>
+          <p className="text-sm text-muted-foreground">
             Manage your legal and policy documents
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="shrink-0 gap-1.5">
           <Link to="/documents/new">
             <Plus className="size-4" />
             New document
@@ -35,30 +36,35 @@ function Dashboard() {
       </div>
 
       {docs.length === 0 ? (
-        <div className="text-center py-16 border rounded-xl bg-muted/30">
-          <p className="text-muted-foreground text-sm mb-4">
-            No documents yet. Create your first one.
+        <div className="text-center py-16 border border-dashed border-border/70 bg-muted/20">
+          <p className="text-muted-foreground text-sm mb-4 font-medium">
+            No documents yet
           </p>
           <Button asChild size="sm">
             <Link to="/documents/new">
               <Plus className="size-4" />
-              Create document
+              Create your first document
             </Link>
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {docs.map((doc: Document) => (
-            <DocumentCard
-              key={doc.id}
-              id={doc.id}
-              slug={doc.slug}
-              title={doc.title}
-              description={doc.description}
-              updatedAt={doc.updatedAt}
-            />
-          ))}
-        </div>
+        <>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">
+            {docs.length} {docs.length === 1 ? 'document' : 'documents'}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {docs.map((doc: Document) => (
+              <DocumentCard
+                key={doc.id}
+                id={doc.id}
+                slug={doc.slug}
+                title={doc.title}
+                description={doc.description}
+                updatedAt={doc.updatedAt}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

@@ -17,7 +17,7 @@ function AdminLayout() {
   return (
     <div className="min-h-screen bg-background">
       <Nav />
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8 sm:py-10">
         <Outlet />
       </main>
     </div>

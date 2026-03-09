@@ -42,18 +42,26 @@ function NewDocument() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" onClick={() => navigate({ to: '/dashboard' })}>
+    <div className="space-y-5 max-w-3xl">
+      <div className="flex items-center gap-3 pb-3 border-b border-border/60">
+        <Button
+          variant="ghost-muted"
+          size="icon-sm"
+          className="-ml-1"
+          onClick={() => navigate({ to: '/dashboard' })}
+        >
           <ArrowLeft className="size-4" />
         </Button>
-        <h1 className="text-2xl font-bold">New Document</h1>
+        <div>
+          <h1 className="text-lg font-bold tracking-tight">New Document</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Fill in the details below</p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="slug">Slug</Label>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="slug" className="text-sm font-medium">Slug</Label>
             <Input
               id="slug"
               placeholder="e.g. tos, privacy"
@@ -69,8 +77,8 @@ function NewDocument() {
               ))}
             </datalist>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="title" className="text-sm font-medium">Title</Label>
             <Input
               id="title"
               placeholder="e.g. Terms of Service"
@@ -82,37 +90,43 @@ function NewDocument() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description (optional)</Label>
+          <Label htmlFor="description" className="text-sm font-medium">Description <span className="text-muted-foreground font-normal">(optional)</span></Label>
           <Input
             id="description"
             placeholder="Short description of this document"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            className="rounded-xl border-border/60"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Content</Label>
-          <Suspense fallback={<div className="h-[500px] border rounded-md bg-muted/30 animate-pulse" />}>
+          <Label className="text-sm font-medium">Content</Label>
+          <Suspense fallback={<div className="h-[500px] border border-border/60 rounded-xl bg-muted/20 animate-pulse" />}>
             <MarkdownEditor value={content} onChange={setContent} />
           </Suspense>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="commit">Commit message</Label>
+          <Label htmlFor="commit" className="text-sm font-medium">Commit message</Label>
           <Input
             id="commit"
             value={commitMessage}
             onChange={(e) => setCommitMessage(e.target.value)}
             required
+            className="rounded-xl border-border/60"
           />
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <div className="text-sm text-destructive bg-destructive/8 border border-destructive/20 px-3 py-2">
+            {error}
+          </div>
+        )}
 
-        <div className="flex gap-3">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create document'}
+        <div className="flex gap-3 pt-1">
+          <Button type="submit" disabled={isSubmitting} className="gap-2">
+            {isSubmitting ? 'Creating…' : 'Create document'}
           </Button>
           <Button
             type="button"
