@@ -2,6 +2,10 @@
   "name": "app-documents",
   "private": true,
   "type": "module",
+  "author": {
+    "name": "Mehmet Rauf Oğuz",
+    "url": "https://github.com/mehmetraufoguz"
+  },
   "imports": {
     "#/*": "./src/*"
   },
