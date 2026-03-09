@@ -26,6 +26,11 @@ export const updateDocumentSchema = z.object({
   commitMessage: z.string().min(1).max(200).default('Update document'),
 })
 
+export const deleteDocumentSchema = z.object({
+  id: z.string().min(1),
+  commitMessage: z.string().min(1).max(200).default('Delete document'),
+})
+
 export const documentIdSchema = z.object({
   documentId: z.string().min(1),
 })
@@ -36,4 +41,5 @@ export const loginSchema = z.object({
 
 export type CreateDocumentInput = z.infer<typeof createDocumentSchema>
 export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>
+export type DeleteDocumentInput = z.infer<typeof deleteDocumentSchema>
 export type LoginInput = z.infer<typeof loginSchema>

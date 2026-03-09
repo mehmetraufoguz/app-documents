@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { eq, asc } from 'drizzle-orm'
+import { eq, asc, isNull, isNotNull } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import { db } from '#/db/index'
 import { documents } from '#/db/schema'
@@ -8,10 +8,12 @@ import {
   readDocumentAtVersion,
   writeAndCommit,
   getDocumentHistory,
+  deleteAndCommit,
 } from '#/server/git/repository'
 import {
   createDocumentSchema,
   updateDocumentSchema,
+  deleteDocumentSchema,
   documentIdSchema,
 } from '#/lib/schemas'
 
@@ -31,7 +33,7 @@ export const getDocumentWithHistory = createServerFn({ method: 'GET' })
     const doc = rows[0]
     if (!doc) return null
 
-    const versions = await getDocumentHistory(doc.filePath, 5)
+    const versions = await getDocumentHistory(doc.filePath, 5, doc.lastCommitHash ?? undefined)
     return { ...doc, versions }
   })
 
@@ -45,8 +47,14 @@ export const getDocumentContent = createServerFn({ method: 'GET' })
     const doc = rows[0]
     if (!doc) return null
 
-    const content = await readDocumentAtVersion(doc.filePath, data.version)
-    return { ...doc, content, version: data.version }
+    // For deleted documents, fall back to the last known commit hash
+    const version =
+      data.version === 'main' && doc.deletedAt && doc.lastCommitHash
+        ? doc.lastCommitHash
+        : data.version
+
+    const content = await readDocumentAtVersion(doc.filePath, version)
+    return { ...doc, content, version }
   })
 
 // --- Auth-required functions ---
@@ -54,7 +62,11 @@ export const getDocumentContent = createServerFn({ method: 'GET' })
 export const listDocuments = createServerFn({ method: 'GET' })
   .handler(async () => {
     await requireAuth()
-    return db.select().from(documents).orderBy(asc(documents.title))
+    return db
+      .select()
+      .from(documents)
+      .where(isNull(documents.deletedAt))
+      .orderBy(asc(documents.title))
   })
 
 export const createDocument = createServerFn({ method: 'POST' })
@@ -91,4 +103,33 @@ export const updateDocument = createServerFn({ method: 'POST' })
     await db.update(documents).set({ updatedAt: new Date() }).where(eq(documents.id, data.id))
 
     return { id: data.id }
+  })
+
+export const deleteDocument = createServerFn({ method: 'POST' })
+  .inputValidator((input: unknown) => deleteDocumentSchema.parse(input))
+  .handler(async ({ data }) => {
+    await requireAuth()
+    const rows = await db.select().from(documents).where(eq(documents.id, data.id))
+    const doc = rows[0]
+    if (!doc) throw new Error('Document not found')
+    if (doc.deletedAt) throw new Error('Document is already deleted')
+
+    const { lastContentCommit } = await deleteAndCommit(doc.filePath, data.commitMessage)
+
+    await db
+      .update(documents)
+      .set({ deletedAt: new Date(), lastCommitHash: lastContentCommit })
+      .where(eq(documents.id, data.id))
+
+    return { id: data.id }
+  })
+
+export const listDeletedDocuments = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    await requireAuth()
+    return db
+      .select()
+      .from(documents)
+      .where(isNotNull(documents.deletedAt))
+      .orderBy(asc(documents.title))
   })

@@ -13,12 +13,14 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminDeletedDocumentsRouteImport } from './routes/_admin/deleted-documents'
 import { Route as AdminDashboardRouteImport } from './routes/_admin/dashboard'
 import { Route as DocumentDocumentIdIndexRouteImport } from './routes/document/$documentId/index'
 import { Route as DocumentDocumentIdMainRouteImport } from './routes/document/$documentId/main'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AdminDocumentsNewRouteImport } from './routes/_admin/documents.new'
 import { Route as AdminDocumentsDocumentIdRouteImport } from './routes/_admin/documents.$documentId'
+import { Route as AdminDashboardDeletedRouteImport } from './routes/_admin/dashboard.deleted'
 import { Route as AdminDocumentsDocumentIdIndexRouteImport } from './routes/_admin/documents.$documentId.index'
 import { Route as DocumentDocumentIdMainRawRouteImport } from './routes/document/$documentId/main/raw'
 import { Route as AdminDocumentsDocumentIdEditRouteImport } from './routes/_admin/documents.$documentId.edit'
@@ -43,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDeletedDocumentsRoute = AdminDeletedDocumentsRouteImport.update({
+  id: '/deleted-documents',
+  path: '/deleted-documents',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
@@ -75,6 +82,11 @@ const AdminDocumentsDocumentIdRoute =
     path: '/documents/$documentId',
     getParentRoute: () => AdminRoute,
   } as any)
+const AdminDashboardDeletedRoute = AdminDashboardDeletedRouteImport.update({
+  id: '/deleted',
+  path: '/deleted',
+  getParentRoute: () => AdminDashboardRoute,
+} as any)
 const AdminDocumentsDocumentIdIndexRoute =
   AdminDocumentsDocumentIdIndexRouteImport.update({
     id: '/',
@@ -110,7 +122,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/dashboard': typeof AdminDashboardRoute
+  '/dashboard': typeof AdminDashboardRouteWithChildren
+  '/deleted-documents': typeof AdminDeletedDocumentsRoute
+  '/dashboard/deleted': typeof AdminDashboardDeletedRoute
   '/documents/$documentId': typeof AdminDocumentsDocumentIdRouteWithChildren
   '/documents/new': typeof AdminDocumentsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -126,7 +140,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/dashboard': typeof AdminDashboardRoute
+  '/dashboard': typeof AdminDashboardRouteWithChildren
+  '/deleted-documents': typeof AdminDeletedDocumentsRoute
+  '/dashboard/deleted': typeof AdminDashboardDeletedRoute
   '/documents/new': typeof AdminDocumentsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/document/$documentId/main': typeof DocumentDocumentIdMainRouteWithChildren
@@ -143,7 +159,9 @@ export interface FileRoutesById {
   '/_admin': typeof AdminRouteWithChildren
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/_admin/dashboard': typeof AdminDashboardRoute
+  '/_admin/dashboard': typeof AdminDashboardRouteWithChildren
+  '/_admin/deleted-documents': typeof AdminDeletedDocumentsRoute
+  '/_admin/dashboard/deleted': typeof AdminDashboardDeletedRoute
   '/_admin/documents/$documentId': typeof AdminDocumentsDocumentIdRouteWithChildren
   '/_admin/documents/new': typeof AdminDocumentsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -162,6 +180,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/dashboard'
+    | '/deleted-documents'
+    | '/dashboard/deleted'
     | '/documents/$documentId'
     | '/documents/new'
     | '/api/auth/$'
@@ -178,6 +198,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/dashboard'
+    | '/deleted-documents'
+    | '/dashboard/deleted'
     | '/documents/new'
     | '/api/auth/$'
     | '/document/$documentId/main'
@@ -194,6 +216,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/_admin/dashboard'
+    | '/_admin/deleted-documents'
+    | '/_admin/dashboard/deleted'
     | '/_admin/documents/$documentId'
     | '/_admin/documents/new'
     | '/api/auth/$'
@@ -248,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_admin/deleted-documents': {
+      id: '/_admin/deleted-documents'
+      path: '/deleted-documents'
+      fullPath: '/deleted-documents'
+      preLoaderRoute: typeof AdminDeletedDocumentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_admin/dashboard': {
       id: '/_admin/dashboard'
       path: '/dashboard'
@@ -290,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDocumentsDocumentIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_admin/dashboard/deleted': {
+      id: '/_admin/dashboard/deleted'
+      path: '/deleted'
+      fullPath: '/dashboard/deleted'
+      preLoaderRoute: typeof AdminDashboardDeletedRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
     '/_admin/documents/$documentId/': {
       id: '/_admin/documents/$documentId/'
       path: '/'
@@ -328,6 +366,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminDashboardRouteChildren {
+  AdminDashboardDeletedRoute: typeof AdminDashboardDeletedRoute
+}
+
+const AdminDashboardRouteChildren: AdminDashboardRouteChildren = {
+  AdminDashboardDeletedRoute: AdminDashboardDeletedRoute,
+}
+
+const AdminDashboardRouteWithChildren = AdminDashboardRoute._addFileChildren(
+  AdminDashboardRouteChildren,
+)
+
 interface AdminDocumentsDocumentIdRouteChildren {
   AdminDocumentsDocumentIdEditRoute: typeof AdminDocumentsDocumentIdEditRoute
   AdminDocumentsDocumentIdIndexRoute: typeof AdminDocumentsDocumentIdIndexRoute
@@ -345,13 +395,15 @@ const AdminDocumentsDocumentIdRouteWithChildren =
   )
 
 interface AdminRouteChildren {
-  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminDashboardRoute: typeof AdminDashboardRouteWithChildren
+  AdminDeletedDocumentsRoute: typeof AdminDeletedDocumentsRoute
   AdminDocumentsDocumentIdRoute: typeof AdminDocumentsDocumentIdRouteWithChildren
   AdminDocumentsNewRoute: typeof AdminDocumentsNewRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminDashboardRoute: AdminDashboardRoute,
+  AdminDashboardRoute: AdminDashboardRouteWithChildren,
+  AdminDeletedDocumentsRoute: AdminDeletedDocumentsRoute,
   AdminDocumentsDocumentIdRoute: AdminDocumentsDocumentIdRouteWithChildren,
   AdminDocumentsNewRoute: AdminDocumentsNewRoute,
 }

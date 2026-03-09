@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { listDocuments } from '#/server/functions/documents.fns'
 import { DocumentCard } from '#/components/app/document-card'
 import { Button } from '#/components/ui/button'
@@ -27,12 +27,20 @@ function Dashboard() {
             Manage your legal and policy documents
           </p>
         </div>
-        <Button asChild className="shrink-0 gap-1.5">
-          <Link to="/documents/new">
-            <Plus className="size-4" />
-            New document
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button asChild variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+            <Link to="/deleted-documents">
+              <Trash2 className="size-4" />
+              Deleted
+            </Link>
+          </Button>
+          <Button asChild className="gap-1.5">
+            <Link to="/documents/new">
+              <Plus className="size-4" />
+              New document
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {docs.length === 0 ? (

@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense } from 'react'
-import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, notFound, redirect, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Save } from 'lucide-react'
 import { z } from 'zod'
 import { getDocumentContent, updateDocument } from '#/server/functions/documents.fns'
@@ -21,6 +21,7 @@ export const Route = createFileRoute('/_admin/documents/$documentId/edit')({
       data: { documentId: params.documentId },
     })
     if (!result) throw notFound()
+    if (result.deletedAt) throw redirect({ to: '/deleted-documents' })
     return { doc: result }
   },
   component: DocumentEdit,

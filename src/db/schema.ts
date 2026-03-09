@@ -12,6 +12,8 @@ export const documents = sqliteTable('documents', {
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
   createdBy: text('created_by').notNull(),
+  deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+  lastCommitHash: text('last_commit_hash'),
 })
 
 // --- better-auth tables ---

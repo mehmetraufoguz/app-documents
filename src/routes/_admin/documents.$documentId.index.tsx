@@ -1,8 +1,10 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute, getRouteApi, notFound } from '@tanstack/react-router'
 import { z } from 'zod'
 import { getDocumentContent } from '#/server/functions/documents.fns'
 import { renderMarkdown } from '#/lib/markdown'
 import { MarkdownPreview } from '#/components/app/markdown-preview'
+
+const parentRoute = getRouteApi('/_admin/documents/$documentId')
 
 export const Route = createFileRoute('/_admin/documents/$documentId/')({
   validateSearch: z.object({
@@ -25,6 +27,17 @@ export const Route = createFileRoute('/_admin/documents/$documentId/')({
 
 function DocumentView() {
   const { html, version } = Route.useLoaderData()
+  const { doc } = parentRoute.useLoaderData()
+  const matchedVersion = doc.versions.find((v) => v.commit === version)
+  const versionDate = matchedVersion
+    ? new Date(matchedVersion.date).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : null
 
   return (
     <div className="space-y-3">
@@ -33,6 +46,12 @@ function DocumentView() {
           <span className="size-1.5 rounded-full bg-primary inline-block shrink-0" />
           Viewing historical version:{' '}
           <code className="font-mono text-foreground/80">{version.slice(0, 7)}</code>
+          {versionDate && (
+            <>
+              <span className="opacity-40">·</span>
+              <span>{versionDate}</span>
+            </>
+          )}
         </div>
       )}
       <div className="bg-muted/25 border-l-2 border-primary/30 px-6 py-6">

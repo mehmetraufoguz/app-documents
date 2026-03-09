@@ -20,8 +20,31 @@ function DocumentLayout() {
   const { doc } = Route.useLoaderData()
   const { documentId } = Route.useParams()
 
+  const isDeleted = !!doc.deletedAt
+
   return (
     <div className="space-y-4">
+      {isDeleted && (
+        <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/5 border border-destructive/30 px-3 py-1.5">
+          <span className="size-1.5 rounded-full bg-destructive/60 inline-block shrink-0" />
+          Deleted on{' '}
+          <strong>
+            {new Date(doc.deletedAt!).toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </strong>
+          <span className="opacity-40 mx-0.5">·</span>
+          <Link
+            to="/deleted-documents"
+            className="underline underline-offset-2 hover:opacity-80 transition-opacity"
+          >
+            Back to deleted documents
+          </Link>
+        </div>
+      )}
+
       {/* Breadcrumb + header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-border/60">
         <div className="space-y-1.5">
@@ -43,6 +66,11 @@ function DocumentLayout() {
             >
               {doc.slug}
             </Badge>
+            {isDeleted && (
+              <Badge variant="outline" className="text-xs border-destructive/40 bg-destructive/5 text-destructive/80">
+                Deleted
+              </Badge>
+            )}
           </div>
           {doc.description && (
             <p className="text-sm text-muted-foreground">{doc.description}</p>
@@ -51,22 +79,26 @@ function DocumentLayout() {
 
         <div className="flex items-center gap-1.5 shrink-0">
           <VersionSelector versions={doc.versions} documentId={documentId} />
-          <Button asChild size="sm" className="gap-1.5">
-            <Link to="/documents/$documentId/edit" params={{ documentId }}>
-              <Pencil className="size-3.5" />
-              Edit
-            </Link>
-          </Button>
-          <Button asChild size="sm" variant="outline" className="gap-1.5">
-            <a
-              href={`/document/${documentId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="size-3.5" />
-              API
-            </a>
-          </Button>
+          {!isDeleted && (
+            <>
+              <Button asChild size="sm" className="gap-1.5">
+                <Link to="/documents/$documentId/edit" params={{ documentId }}>
+                  <Pencil className="size-3.5" />
+                  Edit
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline" className="gap-1.5">
+                <a
+                  href={`/document/${documentId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="size-3.5" />
+                  API
+                </a>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

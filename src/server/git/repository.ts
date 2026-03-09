@@ -99,9 +99,27 @@ export async function writeAndCommit(
   return result.commit
 }
 
+export async function deleteAndCommit(
+  filePath: string,
+  message: string,
+): Promise<{ deletionCommit: string; lastContentCommit: string }> {
+  const g = await getGit()
+  const repoPath = resolvedRepoPath!
+  const relPath = toRepoRelativePath(filePath, repoPath)
+
+  // Capture HEAD before removal — this is the last commit where the file exists
+  const log = await g.log({ maxCount: 1 })
+  const lastContentCommit = log.latest?.hash ?? 'HEAD'
+
+  await g.rm([relPath])
+  const result = await g.commit(message)
+  return { deletionCommit: result.commit, lastContentCommit }
+}
+
 export async function getDocumentHistory(
   filePath: string,
   limit = 5,
+  toRef?: string,
 ): Promise<
   Array<{
     commit: string
@@ -115,14 +133,21 @@ export async function getDocumentHistory(
 
   try {
     const relPath = toRepoRelativePath(filePath, resolvedRepoPath!)
-    const log = await g.log({ file: relPath, maxCount: limit })
-    return log.all.map((entry) => ({
-      commit: entry.hash,
-      shortHash: entry.hash.slice(0, 7),
-      message: entry.message,
-      author: entry.author_name,
-      date: entry.date,
-    }))
+    const SEP = '|||'
+    const FORMAT = `--format=%H${SEP}%s${SEP}%an${SEP}%aI`
+
+    const args = ['log', FORMAT, `--max-count=${limit}`]
+    if (toRef) args.push(toRef)
+    args.push('--', relPath)
+
+    const raw = await g.raw(args)
+    return raw
+      .split('\n')
+      .filter((line) => line.includes(SEP))
+      .map((line) => {
+        const [hash, message, author, date] = line.split(SEP)
+        return { commit: hash, shortHash: hash.slice(0, 7), message, author, date }
+      })
   } catch {
     return []
   }
