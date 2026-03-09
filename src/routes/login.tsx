@@ -2,44 +2,48 @@ import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { FileText, Mail, ArrowRight, CheckCircle } from 'lucide-react'
 import { authClient } from '#/lib/auth-client'
+import { loginSchema } from '#/lib/schemas'
+import { useAppForm } from '#/hooks/form'
 import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Label } from '#/components/ui/label'
 
 // Module-level state: persists across router-triggered remounts
 let _loginSuccess = false
+let _loginEmail = ''
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
 })
 
 function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(_loginSuccess)
+  const [submittedEmail, setSubmittedEmail] = useState(_loginEmail)
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
-    try {
-      const result = await authClient.signIn.magicLink({
-        email,
-        callbackURL: '/dashboard',
-      })
-      if (result.error) {
-        setError(result.error.message ?? 'Failed to send magic link')
-      } else {
-        _loginSuccess = true
-        setSuccess(true)
+  const form = useAppForm({
+    defaultValues: { email: '' },
+    validators: {
+      onSubmit: loginSchema,
+    },
+    onSubmit: async ({ value }) => {
+      setServerError(null)
+      try {
+        const result = await authClient.signIn.magicLink({
+          email: value.email,
+          callbackURL: '/dashboard',
+        })
+        if (result.error) {
+          setServerError(result.error.message ?? 'Failed to send magic link')
+        } else {
+          _loginSuccess = true
+          _loginEmail = value.email
+          setSubmittedEmail(value.email)
+          setSuccess(true)
+        }
+      } catch (err) {
+        setServerError(err instanceof Error ? err.message : 'Something went wrong')
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    },
+  })
 
   if (success) {
     return (
@@ -50,7 +54,7 @@ function LoginPage() {
             <h1 className="text-lg font-semibold tracking-tight">Check your inbox</h1>
             <p className="text-sm text-muted-foreground">
               We sent a magic link to{' '}
-              <strong className="text-foreground">{email}</strong>.
+              <strong className="text-foreground">{submittedEmail}</strong>.
             </p>
           </div>
           <p className="text-xs text-muted-foreground border border-border/60 px-3 py-2.5 bg-muted/40">
@@ -77,38 +81,46 @@ function LoginPage() {
 
         {/* Form */}
         <div className="border border-border/60 bg-card p-5 space-y-4">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            {error && (
-              <div className="text-sm text-destructive bg-destructive/8 border border-destructive/20 px-3 py-2">
-                {error}
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full gap-2"
-              disabled={isLoading}
+          <form.AppForm>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                form.handleSubmit()
+              }}
+              className="space-y-3"
             >
-              <Mail className="size-4" />
-              {isLoading ? 'Sending link…' : 'Send magic link'}
-              {!isLoading && <ArrowRight className="size-3.5 ml-auto" />}
-            </Button>
-          </form>
+              <div className="space-y-1.5">
+                <form.AppField name="email">
+                  {(field) => (
+                    <field.EmailField
+                      label="Email address"
+                      placeholder="you@example.com"
+                    />
+                  )}
+                </form.AppField>
+              </div>
+
+              {serverError && (
+                <div className="text-sm text-destructive bg-destructive/8 border border-destructive/20 px-3 py-2">
+                  {serverError}
+                </div>
+              )}
+
+              <form.Subscribe selector={(state) => state.isSubmitting}>
+                {(isSubmitting) => (
+                  <Button
+                    type="submit"
+                    className="w-full gap-2"
+                    disabled={isSubmitting}
+                  >
+                    <Mail className="size-4" />
+                    {isSubmitting ? 'Sending link…' : 'Send magic link'}
+                    {!isSubmitting && <ArrowRight className="size-3.5 ml-auto" />}
+                  </Button>
+                )}
+              </form.Subscribe>
+            </form>
+          </form.AppForm>
         </div>
 
         <p className="text-center text-xs text-muted-foreground/60">

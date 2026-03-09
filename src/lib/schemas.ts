@@ -30,5 +30,10 @@ export const documentIdSchema = z.object({
   documentId: z.string().min(1),
 })
 
+export const loginSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+})
+
 export type CreateDocumentInput = z.infer<typeof createDocumentSchema>
 export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>
+export type LoginInput = z.infer<typeof loginSchema>

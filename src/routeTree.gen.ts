@@ -13,15 +13,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/_admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as DemoTableRouteImport } from './routes/demo/table'
-import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
-import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as AdminDashboardRouteImport } from './routes/_admin/dashboard'
 import { Route as DocumentDocumentIdIndexRouteImport } from './routes/document/$documentId/index'
 import { Route as DocumentDocumentIdMainRouteImport } from './routes/document/$documentId/main'
-import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
-import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AdminDocumentsNewRouteImport } from './routes/_admin/documents.new'
 import { Route as AdminDocumentsDocumentIdRouteImport } from './routes/_admin/documents.$documentId'
@@ -50,26 +44,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTableRoute = DemoTableRouteImport.update({
-  id: '/demo/table',
-  path: '/demo/table',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoDrizzleRoute = DemoDrizzleRouteImport.update({
-  id: '/demo/drizzle',
-  path: '/demo/drizzle',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
-  id: '/demo/better-auth',
-  path: '/demo/better-auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -83,16 +57,6 @@ const DocumentDocumentIdIndexRoute = DocumentDocumentIdIndexRouteImport.update({
 const DocumentDocumentIdMainRoute = DocumentDocumentIdMainRouteImport.update({
   id: '/document/$documentId/main',
   path: '/document/$documentId/main',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
-  id: '/demo/form/address',
-  path: '/demo/form/address',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -147,15 +111,9 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AdminDashboardRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/documents/$documentId': typeof AdminDocumentsDocumentIdRouteWithChildren
   '/documents/new': typeof AdminDocumentsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
   '/document/$documentId/main': typeof DocumentDocumentIdMainRouteWithChildren
   '/document/$documentId/': typeof DocumentDocumentIdIndexRoute
   '/documents/$documentId/edit': typeof AdminDocumentsDocumentIdEditRoute
@@ -169,14 +127,8 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AdminDashboardRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/documents/new': typeof AdminDocumentsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
   '/document/$documentId/main': typeof DocumentDocumentIdMainRouteWithChildren
   '/document/$documentId': typeof DocumentDocumentIdIndexRoute
   '/documents/$documentId/edit': typeof AdminDocumentsDocumentIdEditRoute
@@ -192,15 +144,9 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/_admin/dashboard': typeof AdminDashboardRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/_admin/documents/$documentId': typeof AdminDocumentsDocumentIdRouteWithChildren
   '/_admin/documents/new': typeof AdminDocumentsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
   '/document/$documentId/main': typeof DocumentDocumentIdMainRouteWithChildren
   '/document/$documentId/': typeof DocumentDocumentIdIndexRoute
   '/_admin/documents/$documentId/edit': typeof AdminDocumentsDocumentIdEditRoute
@@ -216,15 +162,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/dashboard'
-    | '/demo/better-auth'
-    | '/demo/drizzle'
-    | '/demo/table'
-    | '/demo/tanstack-query'
     | '/documents/$documentId'
     | '/documents/new'
     | '/api/auth/$'
-    | '/demo/form/address'
-    | '/demo/form/simple'
     | '/document/$documentId/main'
     | '/document/$documentId/'
     | '/documents/$documentId/edit'
@@ -238,14 +178,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/dashboard'
-    | '/demo/better-auth'
-    | '/demo/drizzle'
-    | '/demo/table'
-    | '/demo/tanstack-query'
     | '/documents/new'
     | '/api/auth/$'
-    | '/demo/form/address'
-    | '/demo/form/simple'
     | '/document/$documentId/main'
     | '/document/$documentId'
     | '/documents/$documentId/edit'
@@ -260,15 +194,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/_admin/dashboard'
-    | '/demo/better-auth'
-    | '/demo/drizzle'
-    | '/demo/table'
-    | '/demo/tanstack-query'
     | '/_admin/documents/$documentId'
     | '/_admin/documents/new'
     | '/api/auth/$'
-    | '/demo/form/address'
-    | '/demo/form/simple'
     | '/document/$documentId/main'
     | '/document/$documentId/'
     | '/_admin/documents/$documentId/edit'
@@ -283,13 +211,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
-  DemoBetterAuthRoute: typeof DemoBetterAuthRoute
-  DemoDrizzleRoute: typeof DemoDrizzleRoute
-  DemoTableRoute: typeof DemoTableRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  DemoFormAddressRoute: typeof DemoFormAddressRoute
-  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
   DocumentDocumentIdMainRoute: typeof DocumentDocumentIdMainRouteWithChildren
   DocumentDocumentIdIndexRoute: typeof DocumentDocumentIdIndexRoute
   DocumentDocumentIdCommitCommitHashRawRoute: typeof DocumentDocumentIdCommitCommitHashRawRoute
@@ -326,34 +248,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/table': {
-      id: '/demo/table'
-      path: '/demo/table'
-      fullPath: '/demo/table'
-      preLoaderRoute: typeof DemoTableRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/drizzle': {
-      id: '/demo/drizzle'
-      path: '/demo/drizzle'
-      fullPath: '/demo/drizzle'
-      preLoaderRoute: typeof DemoDrizzleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/better-auth': {
-      id: '/demo/better-auth'
-      path: '/demo/better-auth'
-      fullPath: '/demo/better-auth'
-      preLoaderRoute: typeof DemoBetterAuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_admin/dashboard': {
       id: '/_admin/dashboard'
       path: '/dashboard'
@@ -373,20 +267,6 @@ declare module '@tanstack/react-router' {
       path: '/document/$documentId/main'
       fullPath: '/document/$documentId/main'
       preLoaderRoute: typeof DocumentDocumentIdMainRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/address': {
-      id: '/demo/form/address'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -497,13 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
-  DemoBetterAuthRoute: DemoBetterAuthRoute,
-  DemoDrizzleRoute: DemoDrizzleRoute,
-  DemoTableRoute: DemoTableRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  DemoFormAddressRoute: DemoFormAddressRoute,
-  DemoFormSimpleRoute: DemoFormSimpleRoute,
   DocumentDocumentIdMainRoute: DocumentDocumentIdMainRouteWithChildren,
   DocumentDocumentIdIndexRoute: DocumentDocumentIdIndexRoute,
   DocumentDocumentIdCommitCommitHashRawRoute:
