@@ -431,6 +431,9 @@ src/
    # Create .env.local file with:
    BETTER_AUTH_SECRET=<generated-secret>
    BETTER_AUTH_URL=http://localhost:5173
+   
+   # Optional: set when running behind a reverse proxy (see DOCKER.md)
+   # TRUSTED_PROXIES=172.16.0.0/12
    ```
 
 4. **Initialize database and Git repository:**

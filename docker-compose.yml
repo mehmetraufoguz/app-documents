@@ -13,6 +13,10 @@ services:
       - BETTER_AUTH_SECRET=608c0753a01718832b4ae37bbf4c7e4f02444272e070536523037017db4138b5
       - BETTER_AUTH_URL=http://localhost:3000
       - NODE_ENV=production
+      # Trusted proxy IPs/CIDRs for rate limiting IP detection.
+      # Use 172.16.0.0/12 to cover the default Docker bridge network range,
+      # or set to your specific reverse proxy IP.
+      # - TRUSTED_PROXIES=172.16.0.0/12
     volumes:
       - ./data:/app/data
     restart: unless-stopped

@@ -4,8 +4,14 @@ import { magicLink } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { db } from '#/db/index'
 import * as schema from '#/db/schema'
+import { env } from '#/env.server'
+
+const trustedProxies = env.TRUSTED_PROXIES
+  ? env.TRUSTED_PROXIES.split(',').map((s) => s.trim()).filter(Boolean)
+  : undefined
 
 export const auth = betterAuth({
+  ...(trustedProxies && { trustedProxies }),
   database: drizzleAdapter(db, {
     provider: 'sqlite',
     schema: {

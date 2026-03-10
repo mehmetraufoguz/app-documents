@@ -28,6 +28,7 @@ docker run -p 3000:3000 \
   -e DOCS_REPO_PATH=./data/docs-repo \
   -e BETTER_AUTH_SECRET=your-32-character-secret-key-here \
   -e BETTER_AUTH_URL=http://localhost:3000 \
+  -e TRUSTED_PROXIES=172.16.0.0/12 \
   -v $(pwd)/data:/app/data \
   app-documents:latest
 ```
@@ -67,6 +68,13 @@ The following environment variables are required:
 - **BETTER_AUTH_SECRET**: Secret key for authentication (minimum 32 characters, **required**)
 - **BETTER_AUTH_URL**: URL of the application (default: `http://localhost:3000`)
 - **NODE_ENV**: Environment mode (default: `production`)
+- **TRUSTED_PROXIES** *(optional)*: Comma-separated list of trusted proxy IPs or CIDR ranges. Required when running behind a reverse proxy so that Better Auth can determine the real client IP for rate limiting. Without this, a warning is logged and rate limiting falls back to skipping IP checks.
+
+  | Scenario | Value |
+  |---|---|
+  | Docker with no reverse proxy (direct port) | `172.16.0.0/12` |
+  | Specific reverse proxy container | `172.18.0.2` (container IP) |
+  | Multiple ranges | `10.0.0.0/8,172.16.0.0/12` |
 
 ## Data Persistence
 
@@ -127,10 +135,11 @@ For production deployment:
 1. Set a strong `BETTER_AUTH_SECRET` (32+ characters, use a secure random string)
 2. Set `BETTER_AUTH_URL` to your production domain
 3. Use a production-grade reverse proxy (Nginx, Caddy)
-4. Configure HTTPS/TLS certificates
-5. Use environment variable management (Docker secrets or external services)
-6. Consider using a persistent database solution outside the container
-7. Set up proper logging and monitoring
+4. Set `TRUSTED_PROXIES` to the IP or CIDR of your reverse proxy so rate limiting works correctly
+5. Configure HTTPS/TLS certificates
+6. Use environment variable management (Docker secrets or external services)
+7. Consider using a persistent database solution outside the container
+8. Set up proper logging and monitoring
 
 ## Multi-Architecture Builds
 
