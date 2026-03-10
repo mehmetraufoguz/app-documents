@@ -1,8 +1,8 @@
 # Build stage
 FROM node:20-alpine AS builder
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install git and pnpm
+RUN apk add --no-cache git && npm install -g pnpm
 
 WORKDIR /app
 
@@ -21,8 +21,8 @@ RUN pnpm build
 # Runtime stage
 FROM node:20-alpine
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install git and pnpm
+RUN apk add --no-cache git && npm install -g pnpm
 
 WORKDIR /app
 
