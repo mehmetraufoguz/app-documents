@@ -63,7 +63,7 @@ docker-compose down
 
 The following environment variables are required:
 
-- **DATABASE_URL**: Path to SQLite database file (default: `./data/profiles.db`)
+- **DATABASE_URL**: Path to SQLite database file (the filename is configurable; docker-compose uses `./data/profiles.db` by default, local development often uses `dev.db`)
 - **DOCS_REPO_PATH**: Path to documents repository directory (default: `./data/docs-repo`)
 - **BETTER_AUTH_SECRET**: Secret key for authentication (minimum 32 characters, **required**)
 - **BETTER_AUTH_URL**: URL of the application (default: `http://localhost:3000`)

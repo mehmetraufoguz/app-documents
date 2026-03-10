@@ -98,7 +98,7 @@ Route Navigation
   → React Query (check cache)
   → If stale/missing: Backend API call
   → Backend (fetch from DB + Git)
-  → Markdown Renderer (React Markdown)
+  → Markdown Renderer (Marked)
   → Display to User
 ```
 
@@ -381,7 +381,8 @@ src/
 - **Tailwind CSS** - Utility-first styling
 - **Radix UI** - Accessible component primitives
 - **@uiw/react-md-editor** - Markdown editor component
-- **Marked** - Markdown parser and renderer
+- **Marked** - Markdown parser and renderer (backend)
+- **@uiw/react-md-editor** - Markdown editor (frontend)
 
 ### Backend
 - **TanStack Start** - Full-stack TypeScript framework
@@ -430,7 +431,7 @@ src/
    
    # Create .env.local file with:
    BETTER_AUTH_SECRET=<generated-secret>
-   BETTER_AUTH_URL=http://localhost:5173
+   BETTER_AUTH_URL=http://localhost:3000
    
    # Optional: set when running behind a reverse proxy (see DOCKER.md)
    # TRUSTED_PROXIES=172.16.0.0/12
@@ -448,7 +449,7 @@ src/
    ```
 
 6. **Open browser:**
-   Navigate to `http://localhost:5173`
+   Navigate to `http://localhost:3000`
 
 ### Available Scripts
 
