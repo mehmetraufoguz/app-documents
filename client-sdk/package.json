@@ -1,0 +1,41 @@
+{
+  "name": "documents-client",
+  "version": "1.0.0",
+  "description": "Type-safe SDK for fetching documents from app-documents server",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "documents",
+    "sdk",
+    "fetch",
+    "markdown"
+  ],
+  "author": "Mehmet Rauf Oğuz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mehmetraufoguz/app-documents"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
