@@ -1,5 +1,5 @@
 /**
- * Core client implementation for documents-client SDK
+ * Core client implementation for app-documents-client SDK
  */
 
 import {
@@ -17,7 +17,6 @@ import {
 import {
   fetchOptionsSchema,
   documentMetadataSchema,
-  documentSchema,
 } from './schemas.js';
 import type { z } from 'zod';
 
@@ -113,6 +112,7 @@ async function handleTextResponse(response: Response): Promise<string> {
  *   version: 'main' // or a commit hash
  * });
  * console.log(doc.content); // HTML content
+ * console.log(doc.versions); // Version history
  * ```
  */
 export async function fetchDocument(
@@ -127,9 +127,27 @@ export async function fetchDocument(
   const { baseUrl, documentId, version } = validationResult.data;
 
   try {
-    const url = buildApiUrl(baseUrl, documentId, version, false);
-    const response = await fetch(url);
-    return handleResponse(response, documentSchema);
+    // Fetch HTML content
+    const contentUrl = buildApiUrl(baseUrl, documentId, version, false);
+    const contentResponse = await fetch(contentUrl);
+    
+    if (contentResponse.status === 404) {
+      throw new DocumentNotFoundError(documentId, version);
+    }
+    if (!contentResponse.ok) {
+      throw new NetworkError(
+        `Request failed with status ${contentResponse.status}`,
+        contentResponse.status
+      );
+    }
+    const content = await contentResponse.text();
+
+    // Fetch metadata from the base endpoint
+    const metadataUrl = buildApiUrl(baseUrl, documentId, undefined, false).replace('/main', '/');
+    const metadataResponse = await fetch(metadataUrl);
+    const metadata: DocumentMetadata = await handleResponse(metadataResponse, documentMetadataSchema);
+
+    return { ...metadata, content };
   } catch (error) {
     if (error instanceof DocumentNotFoundError || 
         error instanceof NetworkError ||

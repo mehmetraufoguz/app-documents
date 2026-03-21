@@ -1,5 +1,5 @@
 {
-  "projectName": "app-documents-2",
+  "projectName": "app-documents",
   "mode": "file-router",
   "typescript": true,
   "packageManager": "pnpm",

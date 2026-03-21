@@ -8,7 +8,6 @@ import { z } from 'zod';
  * Schema for validating base URL
  */
 export const baseUrlSchema = z
-  .string()
   .url('Invalid base URL format')
   .refine((url) => {
     try {
@@ -41,13 +40,6 @@ export const documentMetadataSchema = z.object({
   description: z.string(),
   updatedAt: z.string(),
   versions: z.array(versionInfoSchema),
-});
-
-/**
- * Schema for structured document response
- */
-export const documentSchema = documentMetadataSchema.extend({
-  content: z.string(),
 });
 
 /**

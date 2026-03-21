@@ -1,15 +1,26 @@
 # app-documents
 
+[![Docker Image](https://img.shields.io/badge/Docker-mehmetraufoguz%2Fapp--documents-2496ed.svg?logo=docker)](https://hub.docker.com/r/mehmetraufoguz/app-documents)
+[![npm: app-documents-client](https://img.shields.io/npm/v/app-documents-client.svg)](https://www.npmjs.com/package/app-documents-client)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![TanStack Start](https://img.shields.io/badge/TanStack%20Start-Latest-black.svg)](https://tanstack.com/start)
 
-A full-stack document management system with Git-based version control, built for managing, editing, and tracking changes to documents with complete revision history.
+A full-stack document management system with Git-based version control and a type-safe client SDK. Built as a pnpm monorepo containing the server application and a publishable NPM package for document access.
+
+## 📦 Monorepo Structure
+
+This project is organized as a pnpm workspace with two packages:
+
+- **`/server`** - Full-stack document management application
+- **`/client-sdk`** - Type-safe SDK (`app-documents-client` npm package) for accessing documents via the public API
 
 ## 📋 Project Overview
 
 **app-documents** is a modern web application that enables users to create, edit, and manage documents while maintaining a complete audit trail through Git-based version control. Every change is automatically committed with metadata (author, timestamp, message), allowing teams and individuals to review document evolution, recover from mistakes, and understand the history of their content.
+
+The **app-documents-client SDK** provides a simple, type-safe way for external applications (React, Expo, Node.js) to fetch and display documents from any app-documents server instance.
 
 ### Goals & Philosophy
 
@@ -42,7 +53,15 @@ A full-stack document management system with Git-based version control, built fo
 ### Public API
 - **JSON Endpoint**: Access document metadata, history, and versions as JSON
 - **HTML Endpoint**: Get rendered markdown as HTML
+- **Raw Endpoint**: Get raw markdown content
 - **Caching Headers**: Optimized for performance with appropriate cache directives
+
+### Client SDK (`app-documents-client` npm package)
+- **Type-Safe Fetching**: Zod-validated inputs and responses
+- **Three Core Functions**: `fetchDocument`, `fetchDocumentRaw`, `fetchDocumentMetadata`
+- **Error Handling**: Specific error classes for different failure scenarios
+- **Framework Agnostic**: Works with React, Expo, Node.js, and more
+- **TanStack Query Ready**: Examples with React Query integration
 
 ## 🏗️ Architecture
 
@@ -152,7 +171,7 @@ Submit form
   ↓
 Backend:
   1. Generate document ID (nanoid)
-  2. Create file in data/docs-repo/
+  2. Create file in server/data/docs-repo/
   3. Git commit with message
   4. Insert record in documents table
   ↓
@@ -162,10 +181,10 @@ Display created document
 ```
 
 **Key Components:**
-- `src/routes/_admin/documents.new.tsx` - Creation page
-- `src/components/app/form-components.tsx` - Reusable form fields
-- `src/server/functions/documents.fns.ts` - Document creation logic
-- `src/server/git/repository.ts` - Git operations
+- `server/src/routes/_admin/documents.new.tsx` - Creation page
+- `server/src/components/app/form-components.tsx` - Reusable form fields
+- `server/src/server/functions/documents.fns.ts` - Document creation logic
+- `server/src/server/git/repository.ts` - Git operations
 
 ### 3. Document Editing Workflow
 
@@ -181,7 +200,7 @@ Provide commit message
 Submit changes
   ↓
 Backend:
-  1. Update file in data/docs-repo/
+  1. Update file in server/data/docs-repo/
   2. Git commit with message
   3. Update updatedAt in database
   4. Store lastCommitHash
@@ -194,10 +213,10 @@ Display updated document
 ```
 
 **Key Components:**
-- `src/routes/_admin/documents.$documentId.edit.tsx` - Edit page
-- `src/components/app/document-editor.client.tsx` - Markdown editor
-- `src/server/functions/documents.fns.ts` - Update logic
-- `src/server/git/repository.ts` - Git commit
+- `server/src/routes/_admin/documents.$documentId.edit.tsx` - Edit page
+- `server/src/components/app/document-editor.client.tsx` - Markdown editor
+- `server/src/server/functions/documents.fns.ts` - Update logic
+- `server/src/server/git/repository.ts` - Git commit
 
 ### 4. Version Control & History Workflow
 
@@ -226,8 +245,8 @@ User can:
 ```
 
 **Key Components:**
-- `src/components/app/version-selector.tsx` - Version UI
-- `src/routes/document/$documentId/main.ts` - Version retrieval logic
+- `server/src/components/app/version-selector.tsx` - Version UI
+- `server/src/routes/document/$documentId/main.ts` - Version retrieval logic
 - Git history preserved automatically with each commit
 
 ### 5. Document Deletion Workflow
@@ -257,8 +276,8 @@ Behavior of deleted documents:
 ```
 
 **Key Components:**
-- `src/routes/_admin/deleted-documents.tsx` - View deleted documents (read-only)
-- `src/server/functions/documents.fns.ts` - Soft-delete backend function
+- `server/src/routes/_admin/deleted-documents.tsx` - View deleted documents (read-only)
+- `server/src/server/functions/documents.fns.ts` - Soft-delete backend function
 - Deletion is permanent once committed to Git
 
 ### 6. Public API Access Workflow
@@ -296,83 +315,100 @@ Safe for embedding in other pages
 ```
 
 **Key Components:**
-- `src/routes/document/$documentId/index.ts` - JSON endpoint
-- `src/routes/document/$documentId/main.ts` - HTML endpoint
+- `server/src/routes/document/$documentId/index.ts` - JSON endpoint
+- `server/src/routes/document/$documentId/main.ts` - HTML endpoint
 
 ## 📁 Directory Structure
 
 ```
-src/
-├── components/              # React components
-│   ├── ThemeToggle.tsx      # Dark/light mode toggle
-│   └── app/                 # Application-specific components
-│       ├── document-card.tsx         # Document list item
-│       ├── document-editor.client.tsx # Markdown editor
-│       ├── form-components.tsx       # Reusable form fields
-│       ├── markdown-preview.tsx      # Markdown renderer
-│       ├── nav.tsx                   # Navigation bar
-│       └── version-selector.tsx      # Version history UI
-│   └── ui/                  # Shadcn UI components (button, input, etc.)
+/ (root)
+├── pnpm-workspace.yaml       # pnpm workspace configuration
+├── package.json              # Root workspace package.json
+├── LICENSE
+├── README.md
 │
-├── db/                      # Database layer
-│   ├── index.ts             # Database client setup
-│   └── schema.ts            # Drizzle ORM schema (documents, users, sessions)
+├── server/                   # Document management application
+│   ├── src/
+│   │   ├── components/       # React components
+│   │   │   ├── ThemeToggle.tsx
+│   │   │   └── app/          # Application-specific components
+│   │   │       ├── document-card.tsx
+│   │   │       ├── document-editor.client.tsx
+│   │   │       ├── form-components.tsx
+│   │   │       ├── markdown-preview.tsx
+│   │   │       ├── nav.tsx
+│   │   │       └── version-selector.tsx
+│   │   │   └── ui/           # Shadcn UI components (button, input, etc.)
+│   │   │
+│   │   ├── db/               # Database layer
+│   │   │   ├── index.ts      # Database client setup
+│   │   │   └── schema.ts     # Drizzle ORM schema
+│   │   │
+│   │   ├── hooks/            # React hooks
+│   │   ├── lib/              # Utilities and helpers
+│   │   │   ├── auth-client.ts
+│   │   │   ├── auth.ts
+│   │   │   ├── markdown.ts
+│   │   │   ├── schemas.ts
+│   │   │   └── utils.ts
+│   │   │
+│   │   ├── routes/           # File-based routing (TanStack Router)
+│   │   │   ├── __root.tsx
+│   │   │   ├── index.tsx
+│   │   │   ├── login.tsx
+│   │   │   ├── _admin/       # Protected admin routes
+│   │   │   ├── api/          # API routes
+│   │   │   └── document/     # Public document endpoints
+│   │   │       └── $documentId/
+│   │   │           ├── index.ts  # JSON API
+│   │   │           ├── main.ts   # HTML endpoint
+│   │   │           ├── main/
+│   │   │           │   └── raw.ts  # Raw markdown
+│   │   │           └── commit/
+│   │   │               └── $commitHash/
+│   │   │                   ├── index.ts  # Specific version HTML
+│   │   │                   └── raw.ts     # Specific version raw
+│   │   │
+│   │   ├── server/           # Server-side logic
+│   │   │   ├── middleware.ts
+│   │   │   ├── functions/
+│   │   │   │   ├── auth.fns.ts
+│   │   │   │   └── documents.fns.ts
+│   │   │   └── git/
+│   │   │       └── repository.ts
+│   │   │
+│   │   ├── env.server.ts
+│   │   ├── router.tsx
+│   │   └── styles.css
+│   │
+│   ├── public/              # Static assets
+│   ├── drizzle/             # Database migrations
+│   ├── data/
+│   │   └── docs-repo/       # Git repository for documents
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   ├── docker-compose.yml
+│   └── Dockerfile
 │
-├── hooks/                   # React hooks
-│   ├── form-context.ts      # Form state context
-│   └── form.ts              # Form composition hooks
-│
-├── integrations/            # Third-party integrations
-│   ├── better-auth/         # Authentication
-│   │   └── header-user.tsx   # User menu component
-│   └── tanstack-query/      # Data fetching
-│       └── root-provider.tsx # Query client setup
-│
-├── lib/                     # Utilities and helpers
-│   ├── auth-client.ts       # Client-side auth
-│   ├── auth.ts              # Server-side auth config
-│   ├── markdown.ts          # Markdown utilities
-│   ├── schemas.ts           # Validation schemas
-│   └── utils.ts             # General utilities
-│
-├── routes/                  # File-based routing (TanStack Router)
-│   ├── __root.tsx           # Root layout
-│   ├── index.tsx            # Home page
-│   ├── login.tsx            # Login page
-│   ├── about.tsx            # About page
-│   ├── _admin.tsx           # Protected admin layout
-│   ├── _admin/
-│   │   ├── dashboard.tsx           # Document list (main interface)
-│   │   ├── documents.new.tsx        # Create document
-│   │   ├── documents.$documentId.tsx # View/manage document
-│   │   ├── documents.$documentId.edit.tsx # Edit document
-│   │   └── deleted-documents.tsx    # View deleted docs
-│   ├── api/
-│   │   └── auth/
-│   │       └── $.ts                 # Better Auth routes
-│   └── document/
-│       └── $documentId/
-│           ├── index.ts             # JSON API (public)
-│           ├── main.ts              # HTML endpoint (public)
-│           └── commit/
-│               └── $commitHash/     # Specific version access
-│
-├── server/                  # Server-side logic
-│   ├── middleware.ts        # HTTP middleware
-│   └── functions/
-│       ├── auth.fns.ts      # Auth-related functions
-│       └── documents.fns.ts # Document CRUD operations
-│   └── git/
-│       └── repository.ts    # Git operations (commit, history, etc.)
-│
-├── env.server.ts            # Server environment variables
-├── router.tsx               # TanStack Router configuration
-└── styles.css               # Global Tailwind CSS
+└── client-sdk/              # NPM package: app-documents-client
+    ├── src/
+    │   ├── index.ts          # Main export
+    │   ├── client.ts         # Core functions
+    │   ├── types.ts          # TypeScript types
+    │   ├── errors.ts         # Error classes
+    │   └── schemas.ts        # Zod schemas for validation
+    ├── dist/                 # Built output (gitignored)
+    ├── package.json
+    ├── tsconfig.json
+    └── README.md
 ```
 
 ## 🛠️ Technology Stack
 
-### Frontend
+### Server Application
+
+**Frontend:**
 - **React 19** - Modern UI library
 - **TypeScript 5.7** - Type-safe JavaScript
 - **TanStack Router** - File-based routing with type safety
@@ -381,29 +417,37 @@ src/
 - **Tailwind CSS** - Utility-first styling
 - **Radix UI** - Accessible component primitives
 - **@uiw/react-md-editor** - Markdown editor component
-- **Marked** - Markdown parser and renderer (backend)
-- **@uiw/react-md-editor** - Markdown editor (frontend)
 
-### Backend
+**Backend:**
 - **TanStack Start** - Full-stack TypeScript framework
 - **Nitro** - Server runtime
-- **Better Auth** - Open-source authentication
+- **Better Auth** - Open-source authentication with magic links
 - **Simple Git** - Git operations (commits, history)
+- **Marked** - Markdown parser and renderer
 
-### Database
+**Database:**
 - **SQLite** - Lightweight relational database
 - **better-sqlite3** - Node.js SQLite driver
 - **Drizzle ORM** - Type-safe ORM with database migrations
 
-### Development & Tooling
+**Development & Tooling:**
 - **Vite** - Fast build tool and dev server
 - **Biome** - Unified linter and formatter
 - **Vitest** - Unit testing framework
-- **TypeScript** - Static type checking
+
+### Client SDK (`app-documents-client`)
+
+- **TypeScript** - Full type safety
+- **Zod** - Runtime validation for inputs and responses
+- **Native Fetch API** - No external HTTP client dependencies
+- **ESM** - Modern module format
+- **Framework Agnostic** - Works with React, Expo, Node.js, etc.
 
 ### Infrastructure
-- **Git Repository** - Version control (at `data/docs-repo/`)
-- **Pnpm** - Fast package manager
+
+- **Pnpm Workspaces** - Monorepo package management
+- **Git Repository** - Document version control (at `server/data/docs-repo/`)
+- **Docker** - Optional containerization (see `server/DOCKER.md`)
 
 ## 🚀 Getting Started
 
@@ -423,9 +467,12 @@ src/
    ```bash
    pnpm install
    ```
+   This installs dependencies for both `server` and `client-sdk` workspaces.
 
-3. **Set up environment variables:**
+3. **Set up environment variables (in `/server` directory):**
    ```bash
+   cd server
+   
    # Generate auth secret
    pnpm dlx @better-auth/cli secret
    
@@ -435,50 +482,90 @@ src/
    
    # Optional: set when running behind a reverse proxy (see DOCKER.md)
    # TRUSTED_PROXIES=172.16.0.0/12
+   
+   cd ..
    ```
 
 4. **Initialize database and Git repository:**
    ```bash
-   # Drizzle will create the database automatically
-   # Git repository is created on first document creation
+   # Drizzle will create the database automatically on first run
+   # Git repository is created in server/data/docs-repo/ on first document creation
    ```
 
 5. **Start the development server:**
    ```bash
+   # From root - runs server package
    pnpm dev
+   
+   # Or from server directory
+   cd server && pnpm dev
    ```
 
 6. **Open browser:**
    Navigate to `http://localhost:3000`
 
-### Available Scripts
+### Available Scripts (from root)
 
 ```bash
 # Development
-pnpm dev              # Start dev server with hot reload
+pnpm dev              # Start server dev mode
 
 # Building
-pnpm build            # Build for production
-pnpm start            # Start production server (after build)
+pnpm build            # Build both server and client-sdk packages
 
-# Code Quality
-pnpm lint             # Run Biome linter
-pnpm format           # Format code with Biome
-pnpm check            # Check linting and formatting
-
-# Testing
-pnpm test             # Run Vitest tests
-pnpm test:watch       # Watch mode for tests
-
-# Type Checking
-pnpm typecheck        # TypeScript type checking
+# Preview
+pnpm preview          # Preview server production build
 ```
+
+### Working with Client SDK
+
+To build the `app-documents-client` SDK:
+
+```bash
+# Build the SDK
+pnpm -C client-sdk build
+
+# Watch mode (for development)
+pnpm -C client-sdk dev
+```
+
+The built SDK will be in `client-sdk/dist/` and is ready for publishing to npm.
+
+### Docker Deployment
+
+A pre-built Docker image is available on Docker Hub:
+
+```bash
+# Pull the image
+docker pull mehmetraufoguz/app-documents
+
+# Run with docker-compose (uses server/docker-compose.yml)
+cd server
+docker-compose up -d
+
+# Or run with docker directly
+docker run -d \
+  -p 3000:3000 \
+  -e BETTER_AUTH_SECRET=your-secret \
+  -e BETTER_AUTH_URL=http://localhost:3000 \
+  -v app_data:/app/data \
+  mehmetraufoguz/app-documents
+```
+
+**Environment Variables:**
+- `BETTER_AUTH_SECRET` - Required secret for authentication
+- `BETTER_AUTH_URL` - URL where the app is accessible
+- `TRUSTED_PROXIES` - IP ranges allowed to be trusted when behind reverse proxy
+
+For detailed Docker setup, see [server/DOCKER.md](server/DOCKER.md).
 
 ## 📡 API Documentation
 
 ### Public Endpoints
 
-#### Get Document as JSON
+All public endpoints are accessible without authentication and support caching.
+
+#### Get Document Metadata (JSON)
 ```bash
 GET /document/{documentId}/
 ```
@@ -487,6 +574,7 @@ GET /document/{documentId}/
 ```json
 {
   "id": "abc123",
+  "slug": "my-document",
   "title": "Document Title",
   "description": "Document description",
   "createdBy": "user@example.com",
@@ -511,25 +599,56 @@ GET /document/{documentId}/
 
 **Cache Headers:**
 - `Cache-Control: public, max-age=60, stale-while-revalidate=300`
-- Content cached for 60 seconds, usable for 5 minutes while revalidating
+- Content cached for 60 seconds, stale-while-revalidate for 5 minutes
 
 #### Get Document as HTML
 ```bash
 GET /document/{documentId}/main
+GET /document/{documentId}/commit/{commitHash}/
 ```
 
 **Response:**
-HTML-rendered markdown content with same cache headers
+HTML-rendered markdown content
 
-#### Get Specific Version
+**Cache Headers:**
+- Main: `Cache-Control: public, max-age=60, stale-while-revalidate=300`
+- Specific commit: `Cache-Control: public, max-age=3600, immutable`
+
+#### Get Raw Markdown
 ```bash
-GET /document/{documentId}/commit/{commitHash}/
+GET /document/{documentId}/main/raw
 GET /document/{documentId}/commit/{commitHash}/raw
 ```
 
-Access a specific historical version by commit hash
+**Response:**
+Plain text markdown content
 
-### Protected Endpoints (Server Functions - TanStack Start)
+**Cache Headers:**
+- Same as HTML endpoints above
+
+### Using the Client SDK
+
+Instead of manually calling these endpoints, use the `documents-client` SDK:
+
+```bash
+npm install documents-client
+```
+
+**Example:**
+```ts
+import { fetchDocumentRaw } from 'documents-client';
+
+const doc = await fetchDocumentRaw({
+  baseUrl: 'https://your-instance.com',
+  documentId: 'my-doc',
+  version: 'main'
+});
+
+console.log(doc.content); // Raw markdown
+console.log(doc.metadata.versions); // Version history
+```
+
+See `/client-sdk/README.md` for full SDK documentation.\n\n### Protected Endpoints (Server Functions - TanStack Start)
 
 Document operations are implemented as **TanStack Server Functions**, not REST endpoints. These are automatically handled through the admin interface:
 
@@ -543,7 +662,7 @@ All protected operations require authentication via magic link.
 
 ## 💻 Local Development
 
-### File Editing Workflow
+### Server Application Workflow
 
 1. **Create new document:**
    - Navigate to admin dashboard
@@ -571,23 +690,51 @@ All protected operations require authentication via magic link.
    - View the last committed version for context
    - (Note: Recovery/undelete is not currently implemented)
 
+### Client SDK Development
+
+When working on the `app-documents-client` SDK:
+
+```bash
+# Build SDK
+pnpm -C client-sdk build
+
+# Watch mode for development
+pnpm -C client-sdk dev
+
+# Test SDK locally in server
+cd server
+pnpm add ../client-sdk
+
+# Or link for development
+cd client-sdk && pnpm link
+cd ../server && pnpm link app-documents-client
+```
+
 ### Database Migrations
 
-Running Drizzle migrations:
+Running Drizzle migrations (in `server` directory):
 ```bash
+cd server
+
 # Generate migration from schema changes
-pnpm drizzle generate
+pnpm db:generate
 
 # Apply migrations
-pnpm drizzle migrate
+pnpm db:migrate
+
+# Push schema directly to DB (dev only)
+pnpm db:push
+
+# Open Drizzle Studio
+pnpm db:studio
 ```
 
 ### Git Repository Location
-All document files are stored in `data/docs-repo/` directory. This is a standard Git repository with full history accessible via Git commands:
+All document files are stored in `server/data/docs-repo/` directory. This is a standard Git repository with full history accessible via Git commands:
 
 ```bash
 # View document history
-cd data/docs-repo
+cd server/data/docs-repo
 git log --oneline
 
 # View specific file
@@ -596,13 +743,16 @@ git show <commit-hash>:<file-path>
 
 ### Code Quality
 
-Maintain code quality with:
+Maintain code quality with (from `server` directory):
 ```bash
 # Format code before committing
 pnpm format
 
 # Check for linting issues
 pnpm lint
+
+# Run both check and format
+pnpm check
 ```
 
 ## 📊 Database Schema
@@ -651,7 +801,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file for 
 Contributions are welcome! Please follow the code quality standards:
 
 1. Keep type safety with TypeScript
-2. Write meaningful commit messages
+2. Write meaningful commit messages (conventional commits preferred)
 3. Maintain existing code patterns
 
 ## 📞 Support
