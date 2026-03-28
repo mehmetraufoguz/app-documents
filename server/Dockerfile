@@ -7,10 +7,10 @@ RUN apk add --no-cache git && npm install -g pnpm
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copy source code
 COPY . .
@@ -27,10 +27,10 @@ RUN apk add --no-cache git && npm install -g pnpm
 WORKDIR /app
 
 # Copy package files from builder
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install all dependencies (including dev for drizzle-kit migrations)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copy built application from builder
 COPY --from=builder /app/.output ./.output
