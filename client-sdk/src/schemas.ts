@@ -37,7 +37,7 @@ export const documentMetadataSchema = z.object({
   id: z.string(),
   slug: z.string(),
   title: z.string(),
-  description: z.string(),
+  description: z.string().nullable(),
   updatedAt: z.string(),
   versions: z.array(versionInfoSchema),
 });

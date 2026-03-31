@@ -43,7 +43,7 @@ export interface DocumentMetadata {
   id: string;
   slug: string;
   title: string;
-  description: string;
+  description: string | null;
   updatedAt: string; // ISO date string
   versions: VersionInfo[]; // Array of version/commit info
 }
