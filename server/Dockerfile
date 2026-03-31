@@ -1,16 +1,31 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Dependencies stage
+FROM node:20-alpine AS deps
 
-# Install git and pnpm
-RUN apk add --no-cache git && npm install -g pnpm
+# Install git, build tools for native modules, and pnpm
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache git python3 make g++ && npm install -g pnpm
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY package.json .npmrc* ./
 
-# Install dependencies
-RUN pnpm install
+# Install all dependencies with cache mount
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm install
+
+# Build stage
+FROM node:20-alpine AS builder
+
+# Install pnpm
+RUN npm install -g pnpm
+
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./
 
 # Copy source code
 COPY . .
@@ -21,16 +36,15 @@ RUN pnpm build
 # Runtime stage
 FROM node:20-alpine
 
-# Install git and pnpm
-RUN apk add --no-cache git && npm install -g pnpm
+# Install git (for simple-git) and wget (for health check)
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache git wget
 
 WORKDIR /app
 
-# Copy package files from builder
-COPY package.json ./
-
-# Install all dependencies (including dev for drizzle-kit migrations)
-RUN pnpm install
+# Copy package files and dependencies from deps stage
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy built application from builder
 COPY --from=builder /app/.output ./.output
@@ -38,15 +52,18 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./
 
-# Create data directory for documents repo
-RUN mkdir -p ./data/docs-repo
+# Create data directory for documents repo and set permissions
+RUN mkdir -p ./data/docs-repo && chown -R node:node /app
+
+# Use non-root user
+USER node
 
 # Expose port
 EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
 
 # Run migrations then start the application
-CMD ["sh", "-c", "pnpm db:migrate && node .output/server/index.mjs"]
+CMD ["sh", "-c", "node node_modules/drizzle-kit/bin.cjs migrate && node .output/server/index.mjs"]
