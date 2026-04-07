@@ -1,6 +1,6 @@
 {
   "name": "app-documents-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Type-safe SDK for fetching documents from app-documents server",
   "type": "module",
   "main": "./dist/index.js",

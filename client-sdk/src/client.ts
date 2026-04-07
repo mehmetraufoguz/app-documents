@@ -41,6 +41,20 @@ function buildApiUrl(
 }
 
 /**
+ * Builds the metadata API URL (always /document/{id}/ regardless of version)
+ */
+function buildMetadataUrl(
+  baseUrl: string,
+  documentId: string
+): string {
+  const url = new URL(baseUrl);
+  url.pathname = url.pathname.replace(/\/$/, ''); // Remove trailing slash
+  url.pathname += `/document/${documentId}/`;
+
+  return url.toString();
+}
+
+/**
  * Handles HTTP response and throws appropriate errors
  */
 async function handleResponse<T>(
@@ -143,7 +157,7 @@ export async function fetchDocument(
     const content = await contentResponse.text();
 
     // Fetch metadata from the base endpoint
-    const metadataUrl = buildApiUrl(baseUrl, documentId, undefined, false).replace('/main', '/');
+    const metadataUrl = buildMetadataUrl(baseUrl, documentId);
     const metadataResponse = await fetch(metadataUrl);
     const metadata: DocumentMetadata = await handleResponse(metadataResponse, documentMetadataSchema);
 
@@ -197,8 +211,8 @@ export async function fetchDocumentRaw(
     const contentResponse = await fetch(contentUrl);
     const content = await handleTextResponse(contentResponse);
 
-    // Fetch metadata (always from main or specific version)
-    const metadataUrl = buildApiUrl(baseUrl, documentId, version, false);
+    // Fetch metadata from the metadata endpoint
+    const metadataUrl = buildMetadataUrl(baseUrl, documentId);
     const metadataResponse = await fetch(metadataUrl);
     const metadata: DocumentMetadata = await handleResponse(metadataResponse, documentMetadataSchema);
 
@@ -248,7 +262,7 @@ export async function fetchDocumentMetadata(
   const { baseUrl, documentId } = validationResult.data;
 
   try {
-    const url = buildApiUrl(baseUrl, documentId, 'main', false);
+    const url = buildMetadataUrl(baseUrl, documentId);
     const response = await fetch(url);
     return handleResponse(response, documentMetadataSchema);
   } catch (error) {
